@@ -552,7 +552,7 @@
   };
 
   const REBIRTH_BASE = 20;
-  const MAX_REBIRTHS = 10;
+  const MAX_REBIRTHS = 30;
   const LEVEL_TIER_STEP = 15;
   const LEVEL_TIER_CAP = 8;
 
@@ -568,8 +568,28 @@
     { min:6, name:'Sói Cơ Bắp' },
     { min:7, name:'SÓI CƠ BẮP KHỔNG LỒ' },
     { min:8, name:'Sói Thần Rừng' },
-    { min:9, name:'Sói Vương Tối Thượng' },
-    { min:10, name:'HUYỀN THOẠI SÓI XÁM' }
+    { min:9, name:'Sói Bất Bại' },
+    { min:10, name:'Sói Sấm Sét' },
+    { min:11, name:'Sói Băng Giá' },
+    { min:12, name:'Sói Lửa' },
+    { min:13, name:'Sói Bóng Tối' },
+    { min:14, name:'Sói Ánh Sáng' },
+    { min:15, name:'Chiến Thần Sói Xám' },
+    { min:16, name:'Bá Vương Sói Xám' },
+    { min:17, name:'Sói Thần Chiến Tranh' },
+    { min:18, name:'Sói Titan' },
+    { min:19, name:'Sói Cổ Đại' },
+    { min:20, name:'Sói Vũ Trụ' },
+    { min:21, name:'Sói Ngân Hà' },
+    { min:22, name:'Sói Vĩnh Cửu' },
+    { min:23, name:'Sói Toàn Năng' },
+    { min:24, name:'Sói Tối Cao' },
+    { min:25, name:'Sói Vô Song' },
+    { min:26, name:'Sói Bất Tử' },
+    { min:27, name:'Sói Thần Thoại' },
+    { min:28, name:'Sói Tối Thượng Vương' },
+    { min:29, name:'Sói Vương Tối Thượng' },
+    { min:30, name:'HUYỀN THOẠI SÓI XÁM' }
   ];
 
   const THEMES = [
@@ -666,7 +686,7 @@
     mouthHappy.style.opacity = state.expression === 'happy' ? 1 : 0;
     browAngry.style.opacity = state.expression === 'angry' ? 1 : 0;
     if(state.expression === 'angry'){ eyeL.setAttribute('fill','#c0281c'); eyeR.setAttribute('fill','#c0281c'); }
-    else if(state.rebirths < 8){ eyeL.setAttribute('fill','#20242a'); eyeR.setAttribute('fill','#20242a'); }
+    else if(state.rebirths < 15){ eyeL.setAttribute('fill','#20242a'); eyeR.setAttribute('fill','#20242a'); }
   }
 
   function applyOutfit(){
@@ -688,8 +708,8 @@
   function applyBodyStage(){
     const levelTier = Math.min(LEVEL_TIER_CAP, Math.floor((state.level-1) / LEVEL_TIER_STEP));
     const r = state.rebirths;
-    const bodyScale = 1 + levelTier*0.06 + Math.min(r,10)*0.03;
-    const armScale = 1 + levelTier*0.09 + Math.min(r,10)*0.045;
+    const bodyScale = 1 + levelTier*0.06 + Math.min(r,30)*0.014;
+    const armScale = 1 + levelTier*0.09 + Math.min(r,30)*0.02;
     headGroup.style.transform = 'scale(' + (1+levelTier*0.02) + ')';
     bodyGroup.style.transform = 'scale(' + bodyScale + ',' + (1+levelTier*0.025) + ')';
     armsGroup.style.transform = 'scale(' + armScale + ',1)';
@@ -697,17 +717,19 @@
     legBackR.setAttribute('width', 14 + levelTier*1.8);
 
     muscleOverlay.style.opacity = levelTier>=2 ? Math.min(1,(levelTier-1)*0.3) : 0;
-    maneOverlay.style.opacity = r>=8 ? 1 : 0;
+    maneOverlay.style.opacity = r>=15 ? 1 : 0;
 
     if(r>=5){ chestPatch.setAttribute('fill', '#ffe1a8'); }
-    if(r>=8 && state.expression !== 'angry'){ eyeL.setAttribute('fill','#ff8a3d'); eyeR.setAttribute('fill','#ff8a3d'); }
+    if(r>=15 && state.expression !== 'angry'){ eyeL.setAttribute('fill','#ff8a3d'); eyeR.setAttribute('fill','#ff8a3d'); }
+    if(r>=25 && state.expression !== 'angry'){ eyeL.setAttribute('fill','#ff3d3d'); eyeR.setAttribute('fill','#ff3d3d'); }
 
     const wolfSvgEl = document.getElementById('wolfSvg');
-    const overallScale = 1 + levelTier*0.035 + Math.min(r,10)*0.025;
+    const overallScale = 1 + levelTier*0.035 + Math.min(r,30)*0.012;
     wolfSvgEl.style.transform = 'scale(' + overallScale + ')';
-    wolfSvgEl.style.filter = r>=10 ? 'drop-shadow(0 0 22px rgba(255,210,63,0.85)) drop-shadow(0 0 8px rgba(255,138,61,0.7))'
-      : r>=7 ? 'drop-shadow(0 0 14px rgba(255,210,63,0.55))'
-      : r>=3 ? 'drop-shadow(0 0 8px rgba(255,255,255,0.25))'
+    wolfSvgEl.style.filter = r>=25 ? 'drop-shadow(0 0 26px rgba(255,61,61,0.85)) drop-shadow(0 0 12px rgba(255,210,63,0.75))'
+      : r>=18 ? 'drop-shadow(0 0 22px rgba(255,210,63,0.85)) drop-shadow(0 0 8px rgba(255,138,61,0.7))'
+      : r>=10 ? 'drop-shadow(0 0 14px rgba(255,210,63,0.55))'
+      : r>=5 ? 'drop-shadow(0 0 8px rgba(255,255,255,0.25))'
       : 'none';
 
     applyFurColor();
@@ -766,7 +788,17 @@
     setTimeout(()=>p.remove(),800);
   }
 
+  let lastClickAt = 0;
+  const MIN_CLICK_INTERVAL = 120;
+  wolfBtn.addEventListener('keydown', (e) => {
+    if(e.repeat && (e.key === 'Enter' || e.key === ' ' || e.code === 'Space')){
+      e.preventDefault();
+    }
+  });
   wolfBtn.addEventListener('click',(e)=>{
+    const nowTs = Date.now();
+    if(nowTs - lastClickAt < MIN_CLICK_INTERVAL) return;
+    lastClickAt = nowTs;
     const gain = Math.round(state.perClick * getMultiplier());
     state.score += gain;
     state.totalEarned += gain;
@@ -820,7 +852,6 @@
     }
     const tmp = state.rebirths+1;
     let t=TITLES[0]; for(const x of TITLES){ if(tmp>=x.min) t=x; }
-    if(!confirm('Tái sinh lên "'+t.name+'"? Điểm và level về 0, nhận nhân điểm vĩnh viễn cao hơn (x'+(1+tmp*0.5).toFixed(1)+'), bối cảnh sẽ đổi mới.')) return;
     state.rebirths += 1;
     state.score=0; state.totalEarned=0; state.level=1; state.perClick=1; state.perSec=0;
     state.clickCost=20; state.autoCost=50; state.comboBought=false;
