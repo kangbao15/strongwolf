@@ -545,7 +545,7 @@
 
 <script>
   let state = {
-    score: 0, level: 1, perClick: 1, perSec: 0,
+    score: 0, totalEarned: 0, level: 1, perClick: 1, perSec: 0,
     clickCost: 20, autoCost: 50, comboBought: false, rebirths: 0,
     furColor: 'default', expression: 'normal', shirt: 'none', pants: 'none',
     ownedSkins: []
@@ -723,7 +723,7 @@
 
     const need = levelThreshold(state.level);
     const prevNeed = levelThreshold(state.level-1) || 0;
-    const progress = state.score - prevNeed;
+    const progress = state.totalEarned - prevNeed;
     const span = need - prevNeed;
     const pct = Math.max(0, Math.min(100, (progress/span)*100));
     levelBar.style.width = pct + '%';
@@ -755,7 +755,7 @@
     }
   }
 
-  function checkLevelUp(){ let guard=0; while(state.score >= levelThreshold(state.level) && guard<100000){ state.level++; guard++; } }
+  function checkLevelUp(){ let guard=0; while(state.totalEarned >= levelThreshold(state.level) && guard<100000){ state.level++; guard++; } }
 
   function popFloat(x,y,amount){
     const p = document.createElement('div');
@@ -769,6 +769,8 @@
   wolfBtn.addEventListener('click',(e)=>{
     const gain = Math.round(state.perClick * getMultiplier());
     state.score += gain;
+    state.totalEarned += gain;
+    state.level = 1;
     checkLevelUp();
     render();
     wolfBtn.classList.add('bounce');
@@ -820,7 +822,7 @@
     let t=TITLES[0]; for(const x of TITLES){ if(tmp>=x.min) t=x; }
     if(!confirm('Tái sinh lên "'+t.name+'"? Điểm và level về 0, nhận nhân điểm vĩnh viễn cao hơn (x'+(1+tmp*0.5).toFixed(1)+'), bối cảnh sẽ đổi mới.')) return;
     state.rebirths += 1;
-    state.score=0; state.level=1; state.perClick=1; state.perSec=0;
+    state.score=0; state.totalEarned=0; state.level=1; state.perClick=1; state.perSec=0;
     state.clickCost=20; state.autoCost=50; state.comboBought=false;
     render(); save();
   });
@@ -868,7 +870,7 @@
 
   resetBtn.addEventListener('click',()=>{
     if(confirm('Reset lại TOÀN BỘ kể cả tái sinh và skin, xóa hết tiến trình?')){
-      state = {score:0,level:1,perClick:1,perSec:0,clickCost:20,autoCost:50,comboBought:false,rebirths:0,
+      state = {score:0,totalEarned:0,level:1,perClick:1,perSec:0,clickCost:20,autoCost:50,comboBought:false,rebirths:0,
                 furColor:'default',expression:'normal',shirt:'none',pants:'none',ownedSkins:[]};
       render(); save();
     }
@@ -879,6 +881,9 @@
     try{ const raw=localStorage.getItem('soi_xam_co_bap_v3'); if(raw) state=Object.assign(state, JSON.parse(raw)); }catch(e){}
     if(typeof state.level !== 'number' || isNaN(state.level) || state.level < 1) state.level = 1;
     if(typeof state.score !== 'number' || isNaN(state.score) || state.score < 0) state.score = 0;
+    if(typeof state.totalEarned !== 'number' || isNaN(state.totalEarned) || state.totalEarned < 0) state.totalEarned = 0;
+    { const floorForLevel = levelThreshold(Math.max((state.level||1)-1,0)) || 0;
+      state.totalEarned = Math.max(state.totalEarned, state.score, floorForLevel); }
     if(typeof state.rebirths !== 'number' || isNaN(state.rebirths) || state.rebirths < 0) state.rebirths = 0;
     state.rebirths = Math.min(state.rebirths, MAX_REBIRTHS);
     if(!Array.isArray(state.ownedSkins)) state.ownedSkins = [];
@@ -908,11 +913,13 @@
     const deltaSec = (now - lastTick) / 1000;
     lastTick = now;
     if(state.perSec > 0 && deltaSec > 0){
-      state.score += state.perSec * getMultiplier() * deltaSec;
-      checkLevelUp();
-      render();
-      save();
+      { const amt = state.perSec * getMultiplier() * deltaSec; state.score += amt; state.totalEarned += amt; }
     }
+    const before = state.level;
+    state.level = 1;
+    checkLevelUp();
+    render();
+    if(deltaSec > 0.05 || state.level !== before) save();
   }
   setInterval(tick, 1000);
   document.addEventListener('visibilitychange', () => {
