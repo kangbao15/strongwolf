@@ -163,6 +163,43 @@
       transform: translateY(0);
     }
 
+    /* Play in browser button */
+    .play-web {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+
+      padding: 14px 23px;
+
+      border-radius: 14px;
+
+      background: transparent;
+      border: 1px solid rgba(180, 130, 255, 0.4);
+      color: #c9a9ff;
+
+      text-decoration: none;
+
+      font-size: 16px;
+      font-weight: 700;
+
+      transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+    }
+
+    .play-web:hover {
+      transform: translateY(-2px);
+
+      background: rgba(150, 90, 230, 0.14);
+      border-color: rgba(180, 130, 255, 0.7);
+    }
+
+    .play-web:active {
+      transform: translateY(0);
+    }
+
     /* GitHub button */
     .github {
       display: inline-flex;
@@ -266,6 +303,14 @@
             download
           >
             ↓&nbsp; Download
+          </a>
+
+          <!-- Play in browser -->
+          <a
+            class="play-web"
+            href="game.html"
+          >
+            🎮&nbsp; Chơi trên trình duyệt
           </a>
 
           <!-- GitHub -->
